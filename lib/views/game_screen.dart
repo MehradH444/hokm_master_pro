@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controllers/game_controller.dart';
-import '../models/playing_card.dart';
+import 'widgets/playing_card_widget.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({Key? key}) : super(key: key);
@@ -11,6 +11,7 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   final GameController _controller = GameController();
+  int? _selectedCardIndex;
 
   @override
   void initState() {
@@ -59,28 +60,21 @@ class _GameScreenState extends State<GameScreen> {
             ),
             const Spacer(),
             Container(
-              height: 130,
+              height: 120,
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: _controller.playerHand.length,
                 itemBuilder: (context, index) {
                   final card = _controller.playerHand[index];
-                  return Card(
-                    elevation: 4,
-                    color: Colors.white,
-                    child: Container(
-                      width: 75,
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(card.value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 8),
-                          Text(card.suit, style: const TextStyle(fontSize: 16)),
-                        ],
-                      ),
-                    ),
+                  return PlayingCardWidget(
+                    card: card,
+                    isSelected: _selectedCardIndex == index,
+                    onTap: () {
+                      setState(() {
+                        _selectedCardIndex = index;
+                      });
+                    },
                   );
                 },
               ),
