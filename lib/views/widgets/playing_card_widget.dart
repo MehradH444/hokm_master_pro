@@ -4,77 +4,55 @@ import '../../models/playing_card.dart';
 class PlayingCardWidget extends StatelessWidget {
   final PlayingCard card;
   final VoidCallback? onTap;
-  final bool isSelected;
 
   const PlayingCardWidget({
     Key? key,
     required this.card,
     this.onTap,
-    this.isSelected = false,
   }) : super(key: key);
 
   Color _getSuitColor(String suit) {
-    if (suit == '♥️' || suit == '♦️' || suit == 'Hearts' || suit == 'Diamonds') {
-      return Colors.red;
-    }
-    return Colors.black;
+    return (suit == '♥️' || suit == '♦️') ? Colors.red : Colors.black;
   }
 
   @override
   Widget build(BuildContext context) {
-    final color = _getSuitColor(card.suit);
-
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: EdgeInsets.only(bottom: isSelected ? 15 : 0),
-        child: Card(
-          elevation: isSelected ? 8 : 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            side: BorderSide(
-              color: isSelected ? Colors.amber : Colors.transparent,
-              width: 2,
-            ),
-          ),
+      child: Container(
+        width: 60,
+        height: 90,
+        decoration: BoxDecoration(
           color: Colors.white,
-          child: Container(
-            width: 70,
-            height: 100,
-            padding: const EdgeInsets.all(6.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    card.value,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-                  ),
-                ),
-                Text(
-                  card.suit,
-                  style: TextStyle(fontSize: 22, color: color),
-                ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Text(
-                    card.value,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-                  ),
-                ),
-              ],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4,
+              offset: Offset(2, 2),
             ),
-          ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(
+              card.value,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: _getSuitColor(card.suit),
+              ),
+            ),
+            Text(
+              card.suit,
+              style: TextStyle(
+                fontSize: 22,
+                color: _getSuitColor(card.suit),
+              ),
+            ),
+          ],
         ),
       ),
     );
