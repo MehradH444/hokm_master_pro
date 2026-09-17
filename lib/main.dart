@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'views/screens/game_screen.dart';
+import 'views/screens/hakem_determination_screen.dart';
 
 void main() {
   runApp(const HokmApp());
@@ -11,13 +11,14 @@ class HokmApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'حکم پرو',
+      title: 'حکم پرو VIP',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        brightness: Brightness.dark,
         primarySwatch: Colors.green,
         useMaterial3: true,
       ),
-      home: const GameScreen(),
+      home: const HakemDeterminationScreen(),
     );
   }
 }
