@@ -1,33 +1,23 @@
 import 'package:flutter/material.dart';
+import 'views/screens/game_screen.dart';
 
 void main() {
-  runApp(const HokmMasterApp());
+  runApp(const HokmApp());
 }
 
-class HokmMasterApp extends StatelessWidget {
-  const HokmMasterApp({super.key});
+class HokmApp extends StatelessWidget {
+  const HokmApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Hokm Master Pro',
+      title: 'حکم پرو',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF121212),
-        primaryColor: const Color(0xFF1E1E1E),
-        colorScheme: const ColorScheme.dark(
-          primary: Colors.amber,
-          secondary: Colors.tealAccent,
-        ),
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+        useMaterial3: true,
       ),
-      home: const Scaffold(
-        body: Center(
-          child: Text(
-            'Hokm Master Pro Initialized',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.amber),
-          ),
-        ),
-      ),
+      home: const GameScreen(),
     );
   }
 }
