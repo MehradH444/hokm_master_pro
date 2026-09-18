@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../controllers/game_controller.dart';
+import '../../services/hint_service.dart';
 import '../widgets/playing_card_widget.dart';
 import '../widgets/player_avatar_widget.dart';
 import '../widgets/dialogs/hokm_selection_dialog.dart';
+import '../widgets/dialogs/chat_dialog.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({Key? key}) : super(key: key);
@@ -13,6 +15,7 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   final GameController _controller = GameController();
+  String? _lastChatMessage;
 
   @override
   void initState() {
@@ -39,6 +42,43 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
+  void _showHint() {
+    final suggestedCard = HintService.getSuggestedCard(
+      player: _controller.players[0],
+      tableCards: _controller.tableCards,
+      hokmSuit: _controller.hokmSuit,
+    );
+
+    if (suggestedCard != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('پیشنهاد هوشمند: پیشنهاد می‌شود کارت ${suggestedCard.value} ${suggestedCard.suit} را بازی کنید.'),
+          backgroundColor: Colors.amber.shade900,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  void _openChatDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => ChatDialog(
+        onMessageSelected: (msg) {
+          setState(() {
+            _lastChatMessage = msg;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('پیام شما: $msg'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final userPlayer = _controller.players[0];
@@ -50,6 +90,18 @@ class _GameScreenState extends State<GameScreen> {
         backgroundColor: const Color(0xFF1E293B),
         elevation: 4,
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.lightbulb_outline, color: Colors.amber),
+            onPressed: _showHint,
+            tooltip: 'راهنمای هوشمند',
+          ),
+          IconButton(
+            icon: const Icon(Icons.chat_bubble_outline, color: Colors.lightBlueAccent),
+            onPressed: _openChatDialog,
+            tooltip: 'ارسال پیام/کری‌خوانی',
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(
@@ -79,6 +131,23 @@ class _GameScreenState extends State<GameScreen> {
               ),
             ),
             
+            if (_lastChatMessage != null)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.amber.withOpacity(0.4)),
+                  ),
+                  child: Text(
+                    '💬 $_lastChatMessage',
+                    style: const TextStyle(color: Colors.amberAccent, fontSize: 12),
+                  ),
+                ),
+              ),
+
             // میز اصلی بازی و آواتارها
             Expanded(
               child: Stack(
