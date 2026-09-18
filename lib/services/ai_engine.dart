@@ -1,43 +1,61 @@
 import '../models/playing_card.dart';
+import '../models/player.dart';
 
 class AiEngine {
-  static PlayingCard chooseCardToPlay({
-    required List<PlayingCard> hand,
-    required String? currentHokm,
+  final List<PlayingCard> playedCardsHistory = [];
+
+  void recordPlayedCard(PlayingCard card) {
+    playedCardsHistory.add(card);
+  }
+
+  void resetMemory() {
+    playedCardsHistory.clear();
+  }
+
+  PlayingCard selectBestCard({
+    required Player aiPlayer,
     required List<PlayingCard> tableCards,
+    required String? hokmSuit,
+    required int leadPlayerIndex,
   }) {
+    List<PlayingCard> hand = aiPlayer.hand;
     if (hand.isEmpty) throw Exception("Hand is empty");
 
-    // اگر کارت اول دست است، کارت بالاتری بازی کن
+    // اگر اولین نفر روی زمین است
     if (tableCards.isEmpty) {
-      return hand.reduce((curr, next) => _getCardValue(curr) > _getCardValue(next) ? curr : next);
+      // اولویت ۱: انداختن آس (A) غیر حکم یا آس حکم
+      final nonHokmAces = hand.where((c) => c.value == 'A' && c.suit != hokmSuit).toList();
+      if (nonHokmAces.isNotEmpty) return nonHokmAces.first;
+
+      final hokmAces = hand.where((c) => c.value == 'A' && c.suit == hokmSuit).toList();
+      if (hokmAces.isNotEmpty) return hokmAces.first;
+
+      // در غیر این صورت، پایین‌ترین کارت
+      hand.sort((a, b) => a.value.compareTo(b.value));
+      return hand.first;
     }
 
-    // خال کارت زمینه (اولین کارت روی زمین)
-    final leadSuit = tableCards.first.suit;
+    // اگر زمین کارت دارد، پیدا کردن کارت هم‌خال
+    String leadSuit = tableCards.first.suit;
+    List<PlayingCard> validCards = hand.where((c) => c.suit == leadSuit).toList();
 
-    // کارت‌های هم‌خال با کارت زمین
-    final sameSuitCards = hand.where((c) => c.suit == leadSuit).toList();
-
-    if (sameSuitCards.isNotEmpty) {
-      // رد کردن بالاترین کارت هم‌خال
-      return sameSuitCards.reduce((curr, next) => _getCardValue(curr) > _getCardValue(next) ? curr : next);
+    // اگر کارت هم‌خال دارد
+    if (validCards.isNotEmpty) {
+      validCards.sort((a, b) => b.value.compareTo(a.value));
+      return validCards.first; // بازی کردن بالاترین کارت هم‌خال
     }
 
-    // اگر هم‌خال نداشت و حکم وجود داشت، برش با حکم
-    if (currentHokm != null) {
-      final hokmCards = hand.where((c) => c.suit == currentHokm).toList();
+    // اگر کارت هم‌خال ندارد (رد دادن یا برش)
+    if (hokmSuit != null) {
+      List<PlayingCard> hokmCards = hand.where((c) => c.suit == hokmSuit).toList();
       if (hokmCards.isNotEmpty) {
-        return hokmCards.reduce((curr, next) => _getCardValue(curr) < _getCardValue(next) ? curr : next);
+        hokmCards.sort((a, b) => a.value.compareTo(b.value));
+        return hokmCards.first; // برش با کمترین حکم
       }
     }
 
-    // در غیر این صورت، کم‌ارزش‌ترین کارت را رد کن
-    return hand.reduce((curr, next) => _getCardValue(curr) < _getCardValue(next) ? curr : next);
-  }
-
-  static int _getCardValue(PlayingCard card) {
-    const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-    return values.indexOf(card.value);
+    // رد دادن پایین‌ترین کارت بی‌ارزش
+    hand.sort((a, b) => a.value.compareTo(b.value));
+    return hand.first;
   }
 }
